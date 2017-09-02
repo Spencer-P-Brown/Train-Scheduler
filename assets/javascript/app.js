@@ -1,6 +1,6 @@
 $(document).ready(function(){
-  //initialize firebase
-
+  
+  //Initialize firebase
   var config = {
     apiKey: "AIzaSyA0M7IV67mwnE31VnkblO599Q_W7vZtszw",
     authDomain: "train-scheduler-1f7a1.firebaseapp.com",
@@ -13,7 +13,7 @@ $(document).ready(function(){
 
   var database = firebase.database();
 
-//click function
+//Click function
   $("#add-train-btn").on("click", function(){
 
     event.preventDefault();
@@ -29,6 +29,7 @@ $(document).ready(function(){
       time: trainTime,
       freq: trainFrequency,
     };
+
 //Prevents empty fields from being submitted 
     if(trainName && trainDestination && trainTime && trainFrequency){
    
@@ -40,7 +41,8 @@ $(document).ready(function(){
       console.log(newTrain.freq);
 
   }
-//clear inputs
+
+//Clear inputs
   $("#train-name-input").val("");
   $("#destination-input").val("");
   $("#first-train-time-input").val("");
@@ -48,22 +50,25 @@ $(document).ready(function(){
 
   });
 
-
+  //Create Firebase event for adding trains to the database and a row in the HTML on new entry
   database.ref().on("child_added", function(childSnapshot, prevChildKey) {
 
     console.log(childSnapshot.val());
 
+    //Store everything into a variable
     var trainName = childSnapshot.val().tName;
     var trainDestination = childSnapshot.val().dest;
     var trainTime = childSnapshot.val().time;
     var trainFrequency = childSnapshot.val().freq;
 
+    //Calculate minutes until arrival and arrival time
     var timeCheck = moment(trainTime, "HH:mm").subtract(1, "years");
     var differenceOfTimes = moment().diff(moment(timeCheck), "minutes");
     var mod = differenceOfTimes % trainFrequency;
     var mAway = trainFrequency - mod;
     var arrival = moment().add(mAway, "minutes");
 
+    //Add train data into the table
     $("#train-table>tbody").append("<tr><td>" + trainName + "</td><td>" + trainDestination + "</td><td>" + 
       trainFrequency + "</td><td>" + moment(arrival).format("HH:mm") + "</td><td>" + mAway + "</td></tr>");
   });
